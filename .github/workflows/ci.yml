@@ -1,22 +1,61 @@
 name: CI
+
 on:
   push:
   pull_request:
+
+permissions:
+  contents: read
+
 jobs:
   test:
-    strategy:
-      matrix:
-        php: ['8.2','8.3','8.4']
+    name: PHP ${{ matrix.php }}
+
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php:
+          - "8.2"
+          - "8.3"
+          - "8.4"
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
-        with: {php-version: '${{ matrix.php }}', tools: composer:v2, extensions: openssl, json}
-      - run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
-      - run: composer install --no-interaction --prefer-dist
-      - run: composer proto:generate
-      - run: composer dump-autoload
-      - run: composer lint
-      - run: composer test
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "${{ matrix.php }}"
+          tools: composer:v2
+          extensions: openssl
+          coverage: none
+
+      - name: Install Protobuf compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
+          protoc --version
+
+      - name: Install Composer dependencies
+        run: |
+          composer update \
+            --no-interaction \
+            --prefer-dist \
+            --no-progress
+
+      - name: Generate Protobuf classes
+        run: composer proto:generate
+
+      - name: Refresh Composer autoloader
+        run: composer dump-autoload --optimize
+
+      - name: Run PHP lint
+        run: composer lint
+
+      - name: Run tests
+        run: composer test
         env:
-          REQUIRE_GENERATED_PROTO: '1'
+          REQUIRE_GENERATED_PROTO: "1"
