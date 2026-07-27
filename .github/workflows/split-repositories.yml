@@ -30,7 +30,7 @@ jobs:
           tools: composer:v2
           extensions: openssl, json
       - run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
-      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: composer update --no-interaction --prefer-dist --no-progress
       - run: composer proto:generate
       - run: composer dump-autoload
       - run: composer lint
