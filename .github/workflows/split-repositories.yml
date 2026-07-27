@@ -2,46 +2,81 @@ name: Split repositories
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     tags:
-      - 'v*'
-      - 'core-v*'
-      - 'laravel-v*'
-      - 'starter-v*'
+      - "v*"
+      - "core-v*"
+      - "laravel-v*"
+      - "starter-v*"
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# Never let two main/tag runs rewrite destination branches concurrently.
+# Prevent multiple runs from rewriting destination branches simultaneously.
 concurrency:
   group: free-fire-split-repositories
   cancel-in-progress: false
 
 jobs:
   verify:
+    name: Verify monorepo
+
     if: github.repository == 'refatbd/free-fire-php-monorepo'
+
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
+      - name: Checkout monorepo
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: "8.3"
           tools: composer:v2
-          extensions: openssl, json
-      - run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
-      - run: composer update --no-interaction --prefer-dist --no-progress
-      - run: composer proto:generate
-      - run: composer dump-autoload
-      - run: composer lint
-      - run: composer test
+          extensions: openssl
+          coverage: none
+
+      - name: Install Protobuf compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
+          protoc --version
+
+      - name: Resolve Composer dependencies
+        run: |
+          composer update \
+            --no-interaction \
+            --prefer-dist \
+            --no-progress
+
+      - name: Generate Protobuf classes
+        run: composer proto:generate
+
+      - name: Refresh Composer autoloader
+        run: composer dump-autoload --optimize
+
+      - name: Run PHP lint
+        run: composer lint
+
+      - name: Run tests
+        run: composer test
         env:
-          REQUIRE_GENERATED_PROTO: '1'
-      - run: bash tools/release/simulate_splits.sh
+          REQUIRE_GENERATED_PROTO: "1"
+
+      - name: Simulate repository splits
+        run: bash tools/release/simulate_splits.sh
 
   split:
-    needs: verify
+    name: Split ${{ matrix.kind }}
+
+    needs:
+      - verify
+
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
@@ -50,67 +85,187 @@ jobs:
             prefix: packages/core
             repository: free-fire-php
             tag_prefix: core-
+
           - kind: laravel
             prefix: packages/laravel
             repository: laravel-free-fire
             tag_prefix: laravel-
+
           - kind: starter
             prefix: apps/starter
             repository: free-fire-info-starter
             tag_prefix: starter-
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout full Git history
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: shivammathur/setup-php@v2
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: "8.3"
           tools: composer:v2
-          extensions: openssl, json
+          extensions: openssl
+          coverage: none
 
-      - name: Decide whether this package should publish
+      - name: Decide whether package should publish
         id: release
         shell: bash
         run: |
           set -euo pipefail
-          PUBLISH=true
-          DEST_TAG=""
+
+          PUBLISH="true"
+          DESTINATION_TAG=""
+
           if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
             SOURCE_TAG="$GITHUB_REF_NAME"
+
             if [[ "$SOURCE_TAG" == v* ]]; then
-              DEST_TAG="$SOURCE_TAG"
+              DESTINATION_TAG="$SOURCE_TAG"
+
             elif [[ "$SOURCE_TAG" == "${{ matrix.tag_prefix }}"v* ]]; then
-              DEST_TAG="${SOURCE_TAG#${{ matrix.tag_prefix }}}"
+              DESTINATION_TAG="${SOURCE_TAG#${{ matrix.tag_prefix }}}"
+
             else
-              PUBLISH=false
+              PUBLISH="false"
             fi
           fi
+
           echo "publish=$PUBLISH" >> "$GITHUB_OUTPUT"
-          echo "destination_tag=$DEST_TAG" >> "$GITHUB_OUTPUT"
+          echo "destination_tag=$DESTINATION_TAG" >> "$GITHUB_OUTPUT"
+
+          echo "Package: ${{ matrix.kind }}"
+          echo "Publish: $PUBLISH"
+          echo "Destination tag: ${DESTINATION_TAG:-none}"
+
+      - name: Verify SPLIT_TOKEN exists
+        if: steps.release.outputs.publish == 'true'
+        env:
+          SPLIT_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${SPLIT_TOKEN:-}" ]]; then
+            echo "::error::SPLIT_TOKEN is missing."
+            echo "::error::Add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+          echo "SPLIT_TOKEN is available."
 
       - name: Configure Git
         if: steps.release.outputs.publish == 'true'
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Verify destination repository access
+        if: steps.release.outputs.publish == 'true'
+        env:
+          SPLIT_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+          TARGET_OWNER: refatbd
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          REMOTE="https://x-access-token:${SPLIT_TOKEN}@github.com/${TARGET_OWNER}/${{ matrix.repository }}.git"
+
+          if ! git ls-remote "$REMOTE" >/dev/null 2>&1; then
+            echo "::error::Cannot access destination repository: ${TARGET_OWNER}/${{ matrix.repository }}"
+            echo "::error::Check SPLIT_TOKEN repository access and Contents: Read and write permission."
+            exit 1
+          fi
+
+          echo "Destination repository is accessible."
 
       - name: Build core distribution artifacts
         if: steps.release.outputs.publish == 'true' && matrix.kind == 'core'
+        shell: bash
         run: |
+          set -euo pipefail
+
           sudo apt-get update
           sudo apt-get install -y protobuf-compiler
+
           php packages/core/tools/protobuf/generate.php
+
           git add -f packages/core/protocol/generated/php
-          git commit -m "Build generated Protobuf classes for core distribution" || true
+
+          git commit \
+            -m "Build generated Protobuf classes for core distribution" \
+            || true
+
+      - name: Prepare Laravel distribution manifest
+        if: steps.release.outputs.publish == 'true' && matrix.kind == 'laravel'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          php <<'PHP'
+          <?php
+
+          declare(strict_types=1);
+
+          $file = 'packages/laravel/composer.json';
+
+          if (!is_file($file)) {
+              fwrite(STDERR, "Laravel composer.json was not found.\n");
+              exit(1);
+          }
+
+          $manifest = json_decode(
+              file_get_contents($file),
+              true,
+              512,
+              JSON_THROW_ON_ERROR
+          );
+
+          if (!isset($manifest['require']) || !is_array($manifest['require'])) {
+              $manifest['require'] = [];
+          }
+
+          // Public split repository must depend on a stable core release.
+          $manifest['require']['refatbd/free-fire-php'] = '^1.0';
+
+          file_put_contents(
+              $file,
+              json_encode(
+                  $manifest,
+                  JSON_PRETTY_PRINT
+                  | JSON_UNESCAPED_SLASHES
+                  | JSON_THROW_ON_ERROR
+              ) . PHP_EOL
+          );
+          PHP
+
+          git add packages/laravel/composer.json
+
+          git commit \
+            -m "Prepare Laravel package for public distribution" \
+            || true
 
       - name: Prepare starter distribution manifest
         if: steps.release.outputs.publish == 'true' && matrix.kind == 'starter'
+        shell: bash
         run: |
+          set -euo pipefail
+
           php tools/release/prepare_starter_distribution.php apps/starter
+
           git add apps/starter/composer.json
-          git rm -f --ignore-unmatch apps/starter/composer.lock
-          git commit -m "Prepare starter package for public distribution" || true
+
+          git rm \
+            -f \
+            --ignore-unmatch \
+            apps/starter/composer.lock
+
+          git commit \
+            -m "Prepare starter package for public distribution" \
+            || true
 
       - name: Create and verify split tree
         if: steps.release.outputs.publish == 'true'
@@ -118,20 +273,62 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          SHA=$(git subtree split --prefix="${{ matrix.prefix }}" HEAD)
-          DIST="$RUNNER_TEMP/${{ matrix.kind }}-distribution"
-          rm -rf "$DIST"
-          mkdir -p "$DIST"
-          git archive "$SHA" | tar -x -C "$DIST"
-          php tools/release/verify_split.php "${{ matrix.kind }}" "$DIST"
-          (cd "$DIST" && composer validate --strict --no-check-lock)
 
-          if [[ "${{ matrix.kind }}" == "core" ]]; then
-            (cd "$DIST" && composer install --no-dev --no-interaction --prefer-dist --no-progress)
-            php -r 'require $argv[1]; exit(class_exists("Refatbd\\FreeFire\\Protocol\\Generated\\Ob54\\AccountPersonalShow\\AccountPersonalShowInfo") ? 0 : 1);' "$DIST/vendor/autoload.php"
+          SPLIT_SHA=$(git subtree split \
+            --prefix="${{ matrix.prefix }}" \
+            HEAD)
+
+          if [[ -z "$SPLIT_SHA" ]]; then
+            echo "::error::Failed to create subtree split for ${{ matrix.prefix }}."
+            exit 1
           fi
 
-          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          DISTRIBUTION_DIRECTORY="$RUNNER_TEMP/${{ matrix.kind }}-distribution"
+
+          rm -rf "$DISTRIBUTION_DIRECTORY"
+          mkdir -p "$DISTRIBUTION_DIRECTORY"
+
+          git archive "$SPLIT_SHA" \
+            | tar -x -C "$DISTRIBUTION_DIRECTORY"
+
+          php tools/release/verify_split.php \
+            "${{ matrix.kind }}" \
+            "$DISTRIBUTION_DIRECTORY"
+
+          (
+            cd "$DISTRIBUTION_DIRECTORY"
+
+            composer validate \
+              --strict \
+              --no-check-lock
+          )
+
+          if [[ "${{ matrix.kind }}" == "core" ]]; then
+            (
+              cd "$DISTRIBUTION_DIRECTORY"
+
+              composer install \
+                --no-dev \
+                --no-interaction \
+                --prefer-dist \
+                --no-progress
+            )
+
+            php -r '
+              require $argv[1];
+
+              exit(
+                  class_exists(
+                      "Refatbd\\FreeFire\\Protocol\\Generated\\Ob54\\AccountPersonalShow\\AccountPersonalShowInfo"
+                  )
+                      ? 0
+                      : 1
+              );
+            ' "$DISTRIBUTION_DIRECTORY/vendor/autoload.php"
+          fi
+
+          echo "sha=$SPLIT_SHA" >> "$GITHUB_OUTPUT"
+          echo "Created split commit: $SPLIT_SHA"
 
       - name: Push destination branch and immutable tag
         if: steps.release.outputs.publish == 'true'
@@ -143,16 +340,39 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           REMOTE="https://x-access-token:${SPLIT_TOKEN}@github.com/${TARGET_OWNER}/${{ matrix.repository }}.git"
-          git push --force "$REMOTE" "${SPLIT_SHA}:refs/heads/main"
+
+          echo "Publishing ${{ matrix.kind }} to:"
+          echo "${TARGET_OWNER}/${{ matrix.repository }}"
+
+          git push \
+            --force \
+            "$REMOTE" \
+            "${SPLIT_SHA}:refs/heads/main"
 
           if [[ -n "$DESTINATION_TAG" ]]; then
-            EXISTING=$(git ls-remote "$REMOTE" "refs/tags/${DESTINATION_TAG}" | awk '{print $1}')
-            if [[ -n "$EXISTING" && "$EXISTING" != "$SPLIT_SHA" ]]; then
-              echo "Refusing to rewrite existing destination tag ${DESTINATION_TAG}." >&2
+            EXISTING_SHA=$(
+              git ls-remote \
+                "$REMOTE" \
+                "refs/tags/${DESTINATION_TAG}" \
+                | awk '{print $1}'
+            )
+
+            if [[ -n "$EXISTING_SHA" && "$EXISTING_SHA" != "$SPLIT_SHA" ]]; then
+              echo "::error::Refusing to rewrite existing destination tag ${DESTINATION_TAG}."
+              echo "::error::Existing SHA: ${EXISTING_SHA}"
+              echo "::error::New SHA: ${SPLIT_SHA}"
               exit 1
             fi
-            if [[ -z "$EXISTING" ]]; then
-              git push "$REMOTE" "${SPLIT_SHA}:refs/tags/${DESTINATION_TAG}"
+
+            if [[ -z "$EXISTING_SHA" ]]; then
+              git push \
+                "$REMOTE" \
+                "${SPLIT_SHA}:refs/tags/${DESTINATION_TAG}"
+
+              echo "Created destination tag: ${DESTINATION_TAG}"
+            else
+              echo "Destination tag already points to the correct commit."
             fi
           fi
