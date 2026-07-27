@@ -1,0 +1,5 @@
+syntax = "proto3";
+package refatbd.freefire.protocol.ob54.playerrequest;
+option php_namespace = "Refatbd\\FreeFire\\Protocol\\Generated\\Ob54\\PlayerRequest";
+option php_metadata_namespace = "Refatbd\\FreeFire\\Protocol\\Generated\\Ob54\\Metadata";
+message GetPlayerPersonalShow { int64 a = 1; int32 b = 2; }

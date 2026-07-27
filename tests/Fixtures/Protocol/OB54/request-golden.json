@@ -1,0 +1,14 @@
+{
+  "description": "Non-secret OB54 request bytes independently generated with Python dynamic Protobuf and cryptography, then matched against PHP.",
+  "input": {
+    "openId": "open-id-fixture",
+    "loginToken": "guest-token-fixture",
+    "uid": "4422076728",
+    "callSignSource": 7
+  },
+  "expected": {
+    "loginRequestHex": "b2010f6f70656e2d69642d66697874757265ba010134ea011367756573742d746f6b656e2d666978747572659a060134",
+    "playerRequestHex": "08b892cebc101007",
+    "playerEncryptedHex": "c05210109419914aa06ebf1d3d701ca5"
+  }
+}

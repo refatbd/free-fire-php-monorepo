@@ -1,0 +1,28 @@
+/vendor/
+**/vendor/
+.env
+.env.*
+!.env.example
+.phpunit.cache/
+coverage/
+build/
+var/cache/
+var/tmp/
+
+# Generated Protobuf PHP classes are created during CI/release. Keep only the
+# placeholder in the canonical monorepo; the split workflow force-adds the
+# generated classes to the temporary core distribution commit.
+/packages/core/protocol/generated/php/*
+!/packages/core/protocol/generated/php/.gitkeep
+
+# Local test/runtime artifacts
+**/.phpunit.result.cache
+**/bootstrap/cache/*.php
+**/bootstrap/cache/*.tmp
+**/storage/framework/sessions/*
+**/storage/framework/views/*
+**/storage/logs/*
+!**/bootstrap/cache/.gitignore
+!**/storage/framework/sessions/.gitignore
+!**/storage/framework/views/.gitignore
+!**/storage/logs/.gitignore

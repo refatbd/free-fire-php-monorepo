@@ -1,0 +1,22 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    strategy:
+      matrix:
+        php: ['8.2','8.3','8.4']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: {php-version: '${{ matrix.php }}', tools: composer:v2, extensions: openssl, json}
+      - run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+      - run: composer install --no-interaction --prefer-dist
+      - run: composer proto:generate
+      - run: composer dump-autoload
+      - run: composer lint
+      - run: composer test
+        env:
+          REQUIRE_GENERATED_PROTO: '1'

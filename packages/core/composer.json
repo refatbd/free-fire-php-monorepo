@@ -1,0 +1,33 @@
+{
+  "name": "refatbd/free-fire-php",
+  "description": "Framework-independent Free Fire player information client.",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.2",
+    "ext-json": "*",
+    "ext-openssl": "*",
+    "google/protobuf": "^4.30",
+    "psr/log": "^3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Refatbd\\FreeFire\\": "src/",
+      "Refatbd\\FreeFire\\Protocol\\Generated\\": "protocol/generated/php/Refatbd/FreeFire/Protocol/Generated/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Refatbd\\FreeFire\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-main": "1.x-dev"
+    }
+  },
+  "scripts": {
+    "proto:generate": "php tools/protobuf/generate.php",
+    "proto:validate": "php tools/protobuf/validate.php"
+  }
+}
