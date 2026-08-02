@@ -2,7 +2,7 @@
 
 Canonical development repository for the Free Fire player-information engine, its Laravel integration, and the ready-to-use Laravel starter application.
 
-> This is an unofficial community project. It is not affiliated with or endorsed by Garena.
+> This is an unofficial community project. It is not affiliated with or endorsed by Garena.-
 
 ## Packages
 
