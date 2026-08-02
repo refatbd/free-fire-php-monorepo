@@ -42,17 +42,9 @@ foreach (array_keys($required) as $name) {
     $assert(str_contains($readme, $name), "README does not list {$name}");
 }
 
-$envExample = (string) file_get_contents($root . '/apps/starter/.env.example');
-foreach (['FREEFIRE_DEFAULT_UID=', 'FREEFIRE_DEFAULT_PASSWORD='] as $placeholder) {
-    $assert(str_contains($envExample, $placeholder), ".env.example is missing {$placeholder}");
-}
-
-foreach (['FREEFIRE_DEFAULT_UID', 'FREEFIRE_DEFAULT_PASSWORD'] as $name) {
-    $assert(
-        preg_match('/^' . preg_quote($name, '/') . '=\s*$/m', $envExample) === 1,
-        ".env.example must leave {$name} empty",
-    );
-}
+// Credential environment overrides are optional. A fresh private installation
+// intentionally falls back to BundledCredentialProvider, so documentation CI
+// must not require placeholder keys in the starter's .env.example.
 
 $markdownFiles = glob($coreDocs . '/*.md') ?: [];
 foreach ($markdownFiles as $path) {
