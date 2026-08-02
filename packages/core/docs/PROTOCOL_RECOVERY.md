@@ -1,5 +1,7 @@
 # Protocol recovery and verification
 
+For a new live client build, begin with `OB_PROTOCOL_CAPTURE.md`. Use this document for schema reconstruction mechanics and finish with `LIVE_PROTOCOL_VERIFICATION.md`.
+
 The original Python repository contains generated `_pb2.py` modules rather than checked-in `.proto` sources. The OB54 schemas in `protocol/ob54/` have now been reconstructed from those generated descriptors:
 
 1. `LegacyLogin.proto` contains the exact login request field numbers and the complete decoded login-response surface used by the source project.

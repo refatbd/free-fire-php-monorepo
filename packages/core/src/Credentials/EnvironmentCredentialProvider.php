@@ -8,11 +8,17 @@ final class EnvironmentCredentialProvider implements CredentialProviderInterface
 
     public function forRegion(string $region): ?Credential
     {
-        $key = preg_replace('/[^A-Z0-9]/', '_', strtoupper($region)) ?: 'GLOBAL';
-        $uid = getenv("{$this->prefix}_{$key}_UID") ?: getenv("{$this->prefix}_DEFAULT_UID");
-        $password = getenv("{$this->prefix}_{$key}_PASSWORD") ?: getenv("{$this->prefix}_DEFAULT_PASSWORD");
-        return is_string($uid) && is_string($password) && $uid !== '' && $password !== ''
-            ? new Credential($uid, $password)
-            : null;
+        $regionKey = preg_replace('/[^A-Z0-9]/', '_', strtoupper(trim($region))) ?: 'GLOBAL';
+        $groupKey = CredentialGroupResolver::forRegion($region);
+
+        foreach (array_values(array_unique([$regionKey, $groupKey, 'DEFAULT'])) as $key) {
+            $uid = getenv("{$this->prefix}_{$key}_UID");
+            $password = getenv("{$this->prefix}_{$key}_PASSWORD");
+            if (is_string($uid) && is_string($password) && trim($uid) !== '' && trim($password) !== '') {
+                return new Credential(trim($uid), trim($password));
+            }
+        }
+
+        return null;
     }
 }

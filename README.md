@@ -48,3 +48,15 @@ composer proto:generate
 composer dump-autoload
 composer test
 ```
+
+## Protocol and credential maintenance
+
+Detailed maintainer runbooks are shipped with the core package in `packages/core/docs/`:
+
+- [`OB_PROTOCOL_CAPTURE.md`](packages/core/docs/OB_PROTOCOL_CAPTURE.md) — obtain and verify a new OB profile from a controlled official client;
+- [`ACCOUNT_CREDENTIAL_CAPTURE.md`](packages/core/docs/ACCOUNT_CREDENTIAL_CAPTURE.md) — provision, configure and rotate owned test-account pairs;
+- [`TOKEN_GENERATION_FLOW.md`](packages/core/docs/TOKEN_GENERATION_FLOW.md) — understand automatic guest-token, MajorLogin and bearer generation;
+- [`LIVE_PROTOCOL_VERIFICATION.md`](packages/core/docs/LIVE_PROTOCOL_VERIFICATION.md) — run the group/region release matrix without leaking secrets;
+- [`OB_UPDATE_GUIDE.md`](packages/core/docs/OB_UPDATE_GUIDE.md) — coordinate the complete versioned update and rollback.
+
+The package retains bundled private defaults for install-and-run behavior. Complete server-side environment pairs override them without source edits; generated access/open-ID/bearer tokens are never manually configured.

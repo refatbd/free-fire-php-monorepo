@@ -37,9 +37,11 @@
     "proto:generate": "composer --working-dir=packages/core proto:generate",
     "proto:validate": "composer --working-dir=packages/core proto:validate",
     "test:smoke": "php tests/smoke.php",
+    "test:docs": "php tests/documentation.php",
     "test": [
       "@proto:validate",
       "@test:smoke",
+      "@test:docs",
       "@test:integration",
       "@test:generated",
       "@test:laravel"

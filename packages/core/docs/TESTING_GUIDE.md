@@ -7,6 +7,7 @@ php tools/lint.php
 php packages/core/tools/protobuf/validate.php
 php tests/smoke.php
 php tests/integration_mock.php
+php tests/documentation.php
 bash tools/release/simulate_splits.sh
 ```
 
@@ -34,3 +35,5 @@ Before a protocol release also run:
 - split distribution installation and generated class presence.
 
 Live integration tests are opt-in. They must never print or persist upstream passwords, bearer tokens, open IDs or unsanitized private player responses.
+
+Use `LIVE_PROTOCOL_VERIFICATION.md` for the exact opt-in matrix and sanitized evidence record. Authentication failures should be traced stage-by-stage with `TOKEN_GENERATION_FLOW.md`; credential rotation follows `ACCOUNT_CREDENTIAL_CAPTURE.md`.

@@ -21,13 +21,7 @@ final class BundledCredentialProvider implements CredentialProviderInterface
 
     public function forRegion(string $region): ?Credential
     {
-        $region = strtoupper(trim($region));
-        $group = match ($region) {
-            'IND' => 'IND',
-            'BR', 'US', 'SAC', 'NA', 'EUROPE', 'EU' => 'AMERICAS',
-            'VN', 'ID', 'TH', 'TW' => $region,
-            default => 'GLOBAL',
-        };
+        $group = CredentialGroupResolver::forRegion($region);
         [$uid, $password] = self::ACCOUNTS[$group];
         return new Credential($uid, $password);
     }

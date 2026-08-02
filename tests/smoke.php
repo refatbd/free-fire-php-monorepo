@@ -2,6 +2,8 @@
 declare(strict_types=1);
 require __DIR__.'/bootstrap.php';
 use Refatbd\FreeFire\Credentials\BundledCredentialProvider;
+use Refatbd\FreeFire\Credentials\CredentialGroupResolver;
+use Refatbd\FreeFire\Credentials\EnvironmentCredentialProvider;
 use Refatbd\FreeFire\Crypto\AesCbcCipher;
 use Refatbd\FreeFire\Media\AstcHeaderParser;
 use Refatbd\FreeFire\Http\StreamHttpTransport;
@@ -34,6 +36,19 @@ try{InputValidator::uid('9223372036854775808');$assert(false,'UID int64 range re
 $serverPolicy=new ServerUrlPolicy();$assert($serverPolicy->normalize('example.freefire.invalid/')==='https://example.freefire.invalid','server URL normalization');
 try{$serverPolicy->normalize('http://127.0.0.1:8080');$assert(false,'private server URL rejection');}catch(\Throwable){$assert(true,'private server URL rejection');}
 $c=(new BundledCredentialProvider())->forRegion('BD');$assert($c!==null&&$c->uid==='3692265171','bundled global credential');
+$assert(CredentialGroupResolver::forRegion('BR')==='AMERICAS'&&CredentialGroupResolver::forRegion('BD')==='GLOBAL','credential group mapping');
+$environmentPrefix='FREEFIRE_SMOKE_'.strtoupper(bin2hex(random_bytes(4)));
+putenv("{$environmentPrefix}_AMERICAS_UID=123456789");
+putenv("{$environmentPrefix}_AMERICAS_PASSWORD=group-password");
+$environmentCredential=(new EnvironmentCredentialProvider($environmentPrefix))->forRegion('BR');
+$assert($environmentCredential?->uid==='123456789'&&$environmentCredential?->password==='group-password','environment credential group fallback');
+putenv("{$environmentPrefix}_BR_UID=987654321");
+$environmentCredential=(new EnvironmentCredentialProvider($environmentPrefix))->forRegion('BR');
+$assert($environmentCredential?->uid==='123456789','incomplete region pair does not mix with group pair');
+putenv("{$environmentPrefix}_BR_PASSWORD=region-password");
+$environmentCredential=(new EnvironmentCredentialProvider($environmentPrefix))->forRegion('BR');
+$assert($environmentCredential?->uid==='987654321'&&$environmentCredential?->password==='region-password','complete region pair overrides group pair');
+foreach(['BR_UID','BR_PASSWORD','AMERICAS_UID','AMERICAS_PASSWORD'] as $suffix)putenv("{$environmentPrefix}_{$suffix}");
 $login=(new LoginRequestCodec())->encode('open','token');$fields=WireDecoder::fields($login);$assert(array_column($fields,'field')===[22,23,29,99],'login protobuf field numbers');
 $player=(new PlayerRequestCodec())->encode('4422076728');$assert(array_column(WireDecoder::fields($player),'field')===[1,2],'player protobuf field numbers');
 $cipher=(new AesCbcCipher())->encrypt($player,$p->encryptionKey(),$p->encryptionIv());$assert(strlen($cipher)%16===0,'AES block alignment');

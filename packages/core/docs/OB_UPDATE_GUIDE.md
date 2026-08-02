@@ -2,6 +2,8 @@
 
 This is the authoritative runbook for adding a new Free Fire OB release. Do not modify the existing OB profile in place. Add a new versioned profile, protocol directory, fixtures, tests, and changelog entry so rollback remains possible.
 
+Use `OB_PROTOCOL_CAPTURE.md` for the controlled extraction workflow, `ACCOUNT_CREDENTIAL_CAPTURE.md` for account rotation, `TOKEN_GENERATION_FLOW.md` for the automatic authentication sequence, and `LIVE_PROTOCOL_VERIFICATION.md` for the release gate. This checklist coordinates those detailed runbooks.
+
 ## Fast update map
 
 | What changed in the new OB | Canonical location to inspect/update | Usually requires Laravel/starter edits? |
@@ -82,6 +84,8 @@ src/Protocol/Profiles/ObXXProtocolProfile.php
 
 Never log or expose changed secrets while collecting them.
 
+Follow `OB_PROTOCOL_CAPTURE.md` when locating these values and proving that constants, encodings and bytes all came from the same official client build.
+
 ## 3. Recover and diff Protobuf schemas
 
 Collect the generated descriptor from the controlled client/reference implementation. Export a normalized map containing package, message, field name, field number, scalar/message type, label, oneof, enum values, and dependencies. Compare it with `protocol/obXX`.
@@ -129,7 +133,7 @@ Compare Python/reference and PHP request bytes byte-for-byte. Compare AES cipher
 
 ## 5. Validate default credentials and account pools
 
-Credentials live only in `BundledCredentialProvider`. Test each distinct account group:
+Bundled defaults live only in `BundledCredentialProvider`; server overrides are resolved by `EnvironmentCredentialProvider`. Test each distinct account group:
 
 - IND;
 - Americas/Europe mapping;
@@ -140,6 +144,8 @@ Credentials live only in `BundledCredentialProvider`. Test each distinct account
 - global gateway used by BD/SG/ME/PK/CIS and fallbacks.
 
 Verify guest token, MajorLogin, lock region, server URL, TTL, bans, rate limits, and fallback/rotation behavior. If only a credential changes, update core only and issue an appropriate patch release.
+
+Follow `ACCOUNT_CREDENTIAL_CAPTURE.md` for complete-pair resolution and rotation, then `LIVE_PROTOCOL_VERIFICATION.md` for the group-by-region evidence matrix.
 
 ## 6. Verify regions and endpoints
 
