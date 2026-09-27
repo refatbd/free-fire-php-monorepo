@@ -61,14 +61,9 @@ The workflow uses the normal GitHub-provided token only to read the canonical re
 
 After the four repositories and secret exist, push this monorepo to `refatbd/free-fire-php-monorepo` on branch `main`. The `Split repositories` workflow will verify the source and publish the three destination `main` branches.
 
-After the first successful main split, create the coordinated first release:
+The initial coordinated releases `v1.0.0` and `v1.0.1` already exist in the canonical repository and all three destinations. For a later coordinated release, choose a new SemVer number, complete the release checks in `RELEASE_PROCESS.md`, then create and push its `vX.Y.Z` tag on the canonical monorepo commit. The workflow publishes the same version tag to all three destinations. Never reuse an existing tag.
 
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-That tag publishes `v1.0.0` to all three destination repositories. For package-specific releases, use `core-v*`, `laravel-v*`, or `starter-v*` as documented in `RELEASE_PROCESS.md`.
+For package-specific releases, use `core-v*`, `laravel-v*`, or `starter-v*` as documented in `RELEASE_PROCESS.md`.
 
 ### Destination branch rules
 

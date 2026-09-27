@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.1.0 (planned; not yet tagged)
 
 ### OB55 recovery
 
@@ -10,6 +10,9 @@
 - Preserve explicit-region failures and report incomplete automatic lookups instead of false player-not-found results. Added distinct Laravel error codes.
 - Updated core, Laravel and starter defaults to OB55; added metadata-only manual live diagnostics and an English incident guide.
 - Verified all seven groups by live login and self player lookup, plus offline PHP tests and generated Protobuf parity.
+- Documented the package release version, OB55 protocol version and coordinated tag behavior in the canonical and distribution READMEs.
+
+## v1.0.1 and earlier
 
 ### Architecture and distribution
 
@@ -25,7 +28,7 @@
 - Added bundled credentials with environment override, AES-128-CBC, guest/MajorLogin token flow, cross-process refresh locking and normalized player lookup.
 - Added bounded transport, redirect blocking, strict upstream URL validation, uint64-safe wire handling, signed-int64 UID validation, safer cache deserialization and atomic cache replacement.
 - Added official CDN allowlisting, bounded ASTC downloads, ASTC payload validation, shell-free `astcenc` decoding, GD/WebP rendering with per-character Unicode font fallback, deterministic media versioning and safe fallback media.
-- Centralized region-to-credential-group mapping and complete UID/password resolution; partial pairs are rejected after the OB55 recovery above.
+- Centralized region-to-credential-group mapping and made environment resolution require a complete UID/password pair from one scope before falling back to group, default or bundled credentials.
 
 ### Laravel and starter
 

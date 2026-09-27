@@ -4,6 +4,10 @@
 
 Ready-made Laravel application consuming `refatbd/laravel-free-fire` without copying protocol or credential code.
 
+## Version
+
+The latest tag before the OB55 recovery is [`v1.0.1`](https://github.com/refatbd/free-fire-info-starter/tree/v1.0.1). The OB55 starter defaults on `main` target **`v1.1.0`**, which must be tagged before versioned installs can use them. The application version (`vX.Y.Z`) is separate from the Free Fire protocol version (`OB55`). Release tags originate in the [canonical monorepo](https://github.com/refatbd/free-fire-php-monorepo); see its [release process](https://github.com/refatbd/free-fire-php-monorepo/blob/main/docs/RELEASE_PROCESS.md).
+
 ```bash
 composer create-project refatbd/free-fire-info-starter free-fire-info
 cd free-fire-info
