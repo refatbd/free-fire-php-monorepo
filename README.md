@@ -14,12 +14,14 @@ Canonical development repository for the Free Fire player-information engine, it
 
 All development happens in this monorepo. Split repositories are generated automatically.
 
+**Current protocol: OB55.** The PHP core, Laravel package and starter default to OB55. The seven bundled account groups passed live login and self player lookup on 2026-09-27. See the [OB55 migration record](packages/core/docs/OB55_MIGRATION.md) for evidence, diagnostics and limitations.
+
 ## Key Features
 
 - **Automatic Global Region Detection**: Single UID lookup automatically scans all Garena regional gateways (`BD`, `SG`, `IND`, `BR`, `VN`, `ID`, `TH`, `TW`) without requiring country selection.
 - **Comprehensive Profile Statistics**: Displays 100% of player data across 5 detailed cards (Account Info, Activity, Overview, Pet Details, and Guild/Leader Details).
 - **High-Contrast Banner Graphic Engine**: Bold, heavy sans-serif typography with solid black outlines and clean bottom-right level badge layout.
-- **Protobuf & Garena API Engine**: Reconstructed OB54 Protobuf response schema, guest token auth, MajorLogin JWT, regional encryption codecs, and built-in pure PHP wire decoder fallback.
+- **Protobuf & Garena API Engine**: Versioned OB54/OB55 Protobuf schemas, guest token auth, MajorLogin JWT, regional encryption codecs, and built-in pure PHP wire decoder fallback.
 - **Official Media Engine**: Downloads ASTC textures from official Garena CDNs (`dl-tata.freefireind.in`), decodes via `astcenc` (Linux & Windows), and renders high-quality WebP avatars and banners.
 - **Clean Banner Mode (`raw=1`)**: Supports pure uncomposited ASTC texture background graphics for custom HTML/CSS overlays, as well as composited in-game banner graphics.
 - **Diagnostic Command**: `php artisan freefire:media-check` inspects server capabilities, `proc_open` availability, and binary resolution with step-by-step fix guidance.
@@ -58,5 +60,6 @@ Detailed maintainer runbooks are shipped with the core package in `packages/core
 - [`TOKEN_GENERATION_FLOW.md`](packages/core/docs/TOKEN_GENERATION_FLOW.md) — understand automatic guest-token, MajorLogin and bearer generation;
 - [`LIVE_PROTOCOL_VERIFICATION.md`](packages/core/docs/LIVE_PROTOCOL_VERIFICATION.md) — run the group/region release matrix without leaking secrets;
 - [`OB_UPDATE_GUIDE.md`](packages/core/docs/OB_UPDATE_GUIDE.md) — coordinate the complete versioned update and rollback.
+- [`OB55_MIGRATION.md`](packages/core/docs/OB55_MIGRATION.md) — understand the OB55 incident, PHP fixes and verified account groups.
 
-The package retains bundled private defaults for install-and-run behavior. Complete server-side environment pairs override them without source edits; generated access/open-ID/bearer tokens are never manually configured.
+The package retains bundled service accounts for install-and-run behavior. Complete server-side environment pairs override them without source edits; generated access/open-ID/bearer tokens are never manually configured. A partial override is an error.

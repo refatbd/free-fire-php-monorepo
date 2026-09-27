@@ -17,6 +17,8 @@ use Refatbd\FreeFire\Protocol\BuiltInProtocolProfiles;
 use Refatbd\FreeFire\Protocol\LoginRequestCodec;
 use Refatbd\FreeFire\Protocol\PlayerRequestCodec;
 use Refatbd\FreeFire\Protocol\Profiles\Ob54ProtocolProfile;
+use Refatbd\FreeFire\Protocol\Profiles\Ob55ProtocolProfile;
+use Refatbd\FreeFire\Protocol\LoginResponseDecoder;
 use Refatbd\FreeFire\Protocol\ProtocolProfileRegistry;
 use Refatbd\FreeFire\Protocol\Wire\WireDecoder;
 use Refatbd\FreeFire\Protocol\Wire\WireEncoder;
@@ -27,14 +29,19 @@ $tests=[];$assert=function(bool $ok,string $name)use(&$tests){if(!$ok)throw new 
 $p=new Ob54ProtocolProfile();$assert(strlen($p->encryptionKey())===16&&strlen($p->encryptionIv())===16,'OB54 key/IV length');
 $profiles=new ProtocolProfileRegistry([$p]);$assert($profiles->get('ob54')===$p&&$profiles->versions()===['OB54'],'protocol profile registry');
 $assert(BuiltInProtocolProfiles::classes()['OB54']===Ob54ProtocolProfile::class&&BuiltInProtocolProfiles::get('OB54')->obVersion()==='OB54','built-in protocol profile registry');
+$ob55=new Ob55ProtocolProfile();$assert(BuiltInProtocolProfiles::classes()['OB55']===Ob55ProtocolProfile::class&&$ob55->obVersion()==='OB55','OB55 profile registered');
+$headers=$ob55->binaryHeaders();$assert(($headers['ReleaseVersion']??'')==='OB55'&&ctype_digit($headers['X-GA-SV']??'')&&abs((int)$headers['X-GA-SV']-time())<5,'OB55 current timestamp header');
+$assert(str_contains($ob55->playerResponseMessageClass(),'Generated\\Ob55\\'),'OB55 generated response class');
 $assert($p->playerShowPath()==='/GetPlayerPersonalShow'&&$p->playerCallSignSource()===7,'profile-driven player request settings');
 $assert(str_contains($p->playerResponseMessageClass(),'Generated\\Ob54\\'),'OB-versioned generated response class');
 $r=new RegionRegistry();$assert($r->normalize('eu')==='EUROPE','region alias');$assert(InputValidator::uid('4422076728')==='4422076728','UID validation');
 $uint64=WireEncoder::varint('18446744073709551615');$assert(bin2hex($uint64)==='ffffffffffffffffff01','uint64 varint encoding');
 $uint64Field=WireDecoder::fields(WireEncoder::key(1,0).$uint64);$assert(($uint64Field[0]['value']??null)==='18446744073709551615','uint64 varint decoding');
 try{InputValidator::uid('9223372036854775808');$assert(false,'UID int64 range rejection');}catch(\Throwable){$assert(true,'UID int64 range rejection');}
-$serverPolicy=new ServerUrlPolicy();$assert($serverPolicy->normalize('example.freefire.invalid/')==='https://example.freefire.invalid','server URL normalization');
+$serverPolicy=new ServerUrlPolicy();$assert($serverPolicy->normalize('https://clientbp.ppmainecoonghj.com/')==='https://clientbp.ppmainecoonghj.com','server URL normalization');
 try{$serverPolicy->normalize('http://127.0.0.1:8080');$assert(false,'private server URL rejection');}catch(\Throwable){$assert(true,'private server URL rejection');}
+try{$serverPolicy->normalize('https://example.freefire.invalid');$assert(false,'unapproved server URL rejection');}catch(\Throwable){$assert(true,'unapproved server URL rejection');}
+try{$serverPolicy->normalize('https://clientbp.ppmainecoonghj.com/private');$assert(false,'player server path rejection');}catch(\Throwable){$assert(true,'player server path rejection');}
 $c=(new BundledCredentialProvider())->forRegion('BD');$assert($c!==null&&$c->uid==='3692265171','bundled global credential');
 $assert(CredentialGroupResolver::forRegion('BR')==='AMERICAS'&&CredentialGroupResolver::forRegion('BD')==='GLOBAL','credential group mapping');
 $environmentPrefix='FREEFIRE_SMOKE_'.strtoupper(bin2hex(random_bytes(4)));
@@ -43,12 +50,18 @@ putenv("{$environmentPrefix}_AMERICAS_PASSWORD=group-password");
 $environmentCredential=(new EnvironmentCredentialProvider($environmentPrefix))->forRegion('BR');
 $assert($environmentCredential?->uid==='123456789'&&$environmentCredential?->password==='group-password','environment credential group fallback');
 putenv("{$environmentPrefix}_BR_UID=987654321");
-$environmentCredential=(new EnvironmentCredentialProvider($environmentPrefix))->forRegion('BR');
-$assert($environmentCredential?->uid==='123456789','incomplete region pair does not mix with group pair');
+try{(new EnvironmentCredentialProvider($environmentPrefix))->forRegion('BR');$assert(false,'incomplete region pair rejected');}catch(\Refatbd\FreeFire\Exception\ConfigurationException){$assert(true,'incomplete region pair rejected');}
 putenv("{$environmentPrefix}_BR_PASSWORD=region-password");
 $environmentCredential=(new EnvironmentCredentialProvider($environmentPrefix))->forRegion('BR');
 $assert($environmentCredential?->uid==='987654321'&&$environmentCredential?->password==='region-password','complete region pair overrides group pair');
+putenv("{$environmentPrefix}_BR_UID=invalid");
+try{(new EnvironmentCredentialProvider($environmentPrefix))->forRegion('BR');$assert(false,'invalid region UID rejected as configuration error');}catch(\Refatbd\FreeFire\Exception\ConfigurationException){$assert(true,'invalid region UID rejected as configuration error');}
 foreach(['BR_UID','BR_PASSWORD','AMERICAS_UID','AMERICAS_PASSWORD'] as $suffix)putenv("{$environmentPrefix}_{$suffix}");
+$loginResponse=WireEncoder::string(2,'BR').WireEncoder::string(8,'synthetic-token').WireEncoder::uint(9,3600).WireEncoder::string(10,'https://client.us.freefiremobile.com');
+$decoded=(new LoginResponseDecoder())->decode(str_repeat("\0",64).$loginResponse,'OB55');
+$assert($decoded->token==='synthetic-token'&&$decoded->lockRegion==='BR','OB55 framed login decoding');
+try{(new LoginResponseDecoder())->decode(str_repeat("\0",64).WireEncoder::string(8,'synthetic-token').WireEncoder::string(10,'https://client.us.freefiremobile.com'),'OB55');$assert(false,'missing login region rejected');}catch(\Refatbd\FreeFire\Exception\ProtocolException){$assert(true,'missing login region rejected');}
+try{(new LoginResponseDecoder())->decode(str_repeat("\0",64).WireEncoder::string(13,WireEncoder::uint(1,1).WireEncoder::uint(3,1756478597)),'OB55');$assert(false,'OB55 unknown status rejected');}catch(\Refatbd\FreeFire\Exception\ProtocolException){$assert(true,'OB55 unknown status rejected');}
 $login=(new LoginRequestCodec())->encode('open','token');$fields=WireDecoder::fields($login);$assert(array_column($fields,'field')===[22,23,29,99],'login protobuf field numbers');
 $player=(new PlayerRequestCodec())->encode('4422076728');$assert(array_column(WireDecoder::fields($player),'field')===[1,2],'player protobuf field numbers');
 $cipher=(new AesCbcCipher())->encrypt($player,$p->encryptionKey(),$p->encryptionIv());$assert(strlen($cipher)%16===0,'AES block alignment');

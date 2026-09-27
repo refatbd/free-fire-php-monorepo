@@ -26,6 +26,9 @@ $requiredByKind = [
         'protocol/ob54/AccountPersonalShow.proto',
         'protocol/ob54/LegacyLogin.proto',
         'protocol/ob54/PlayerRequest.proto',
+        'protocol/ob55/AccountPersonalShow.proto',
+        'protocol/ob55/LegacyLogin.proto',
+        'protocol/ob55/PlayerRequest.proto',
         'tools/protobuf/generate.php',
         'bin/astcenc-linux-x64',
         'bin/astcenc-windows-x64.exe',
@@ -115,6 +118,9 @@ foreach (['packages/core', 'packages/laravel', 'apps/starter', '.github/workflow
 
 if ($kind === 'core') {
     $generatedRoot = $directory.'/protocol/generated/php';
+    if (!is_file($generatedRoot.'/Refatbd/FreeFire/Protocol/Generated/Ob55/AccountPersonalShow/AccountPersonalShowInfo.php')) {
+        $errors[] = 'Core distribution is missing the generated OB55 player response class.';
+    }
     $generated = [];
     if (is_dir($generatedRoot)) {
         $iterator = new RecursiveIteratorIterator(

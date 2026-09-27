@@ -6,7 +6,7 @@ Package consumers should reinstall/update the core distribution because release 
 
 ## Wrong/unsupported protocol profile
 
-Confirm the profile exists in core `BuiltInProtocolProfiles` (or as a Laravel custom override) and the environment uses a value such as `FREEFIRE_PROTOCOL=OB54`. Do not point an OB profile at another OB version's generated response class.
+Confirm the profile exists in core `BuiltInProtocolProfiles` (or as a Laravel custom override) and the environment uses `FREEFIRE_PROTOCOL=OB55` for the current release. Do not point an OB profile at another OB version's generated response class.
 
 ## ASTC unavailable
 

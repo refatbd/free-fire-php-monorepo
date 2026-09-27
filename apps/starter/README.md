@@ -19,7 +19,7 @@ Open:
 Set the active versioned protocol with:
 
 ```dotenv
-FREEFIRE_PROTOCOL=OB54
+FREEFIRE_PROTOCOL=OB55
 ```
 
 Run `php artisan freefire:media-check` to verify official avatar/banner support. Player information remains usable when ASTC media rendering is unavailable.

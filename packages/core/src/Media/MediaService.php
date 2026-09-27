@@ -10,7 +10,7 @@ final class MediaService
     public function __construct(
         private readonly PlayerMediaRendererInterface $renderer,
         private readonly CacheStoreInterface $cache,
-        private readonly string $obVersion = 'OB54',
+        private readonly string $obVersion = 'OB55',
         private readonly int $ttl = 300,
     ) {}
 

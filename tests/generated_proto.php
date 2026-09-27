@@ -16,3 +16,22 @@ if(!hash_equals((new LoginRequestCodec())->encode('open','token'),$login->serial
 $player=new $playerClass();$player->setA(4422076728)->setB(7);
 if(!hash_equals((new PlayerRequestCodec())->encode('4422076728'),$player->serializeToString())){fwrite(STDERR,"Player request byte parity failed.\n");exit(1);}
 echo "Generated Protobuf request parity passed.\n";
+foreach (['Ob55'] as $version) {
+    $loginClass="Refatbd\\FreeFire\\Protocol\\Generated\\{$version}\\LegacyLogin\\LoginReq";
+    $playerClass="Refatbd\\FreeFire\\Protocol\\Generated\\{$version}\\PlayerRequest\\GetPlayerPersonalShow";
+    $responseClass="Refatbd\\FreeFire\\Protocol\\Generated\\{$version}\\AccountPersonalShow\\AccountPersonalShowInfo";
+    foreach ([$loginClass,$playerClass,$responseClass] as $class) {
+        if (!class_exists($class)) { fwrite(STDERR,"Missing generated class {$class}.\n"); exit(1); }
+    }
+    $login=new $loginClass();
+    $login->setOpenId('open')->setOpenIdType('4')->setLoginToken('token')->setOrignPlatformType('4');
+    if (!hash_equals((new LoginRequestCodec())->encode('open','token'),$login->serializeToString())) {
+        throw new RuntimeException("{$version} login request byte parity failed.");
+    }
+    $player=new $playerClass();
+    $player->setA(4422076728)->setB(7);
+    if (!hash_equals((new PlayerRequestCodec())->encode('4422076728'),$player->serializeToString())) {
+        throw new RuntimeException("{$version} player request byte parity failed.");
+    }
+}
+echo "OB55 generated Protobuf request parity passed.\n";

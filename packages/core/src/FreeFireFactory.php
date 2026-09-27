@@ -28,7 +28,7 @@ final class FreeFireFactory
         ?LoggerInterface $logger = null,
         ?ProtocolProfileInterface $profile = null,
     ): FreeFireClient {
-        $profile ??= BuiltInProtocolProfiles::get('OB54');
+        $profile ??= BuiltInProtocolProfiles::get('OB55');
         $cache = new FileCacheStore($cacheDirectory);
         $http = new StreamHttpTransport();
         $credentials = new ChainCredentialProvider([
@@ -56,7 +56,7 @@ final class FreeFireFactory
         ?array $officialAssetBases = null,
         ?ProtocolProfileInterface $profile = null,
     ): MediaService {
-        $profile ??= BuiltInProtocolProfiles::get('OB54');
+        $profile ??= BuiltInProtocolProfiles::get('OB55');
         $cache = new FileCacheStore($cacheDirectory);
         $decoder = new AstcencProcessDecoder($astcencBinary);
         $policy = new OfficialAssetPolicy($officialAssetBases);

@@ -17,6 +17,7 @@ use Refatbd\FreeFire\Protocol\LoginRequestCodec;
 use Refatbd\FreeFire\Protocol\LoginResponseDecoder;
 use Refatbd\FreeFire\Protocol\ProtocolProfileInterface;
 use Refatbd\FreeFire\Region\RegionRegistry;
+use Refatbd\FreeFire\Region\ServerUrlPolicy;
 
 final class TokenManager
 {
@@ -31,6 +32,7 @@ final class TokenManager
         private readonly AesCbcCipher $cipher = new AesCbcCipher(),
         private readonly LoginRequestCodec $loginCodec = new LoginRequestCodec(),
         private readonly LoginResponseDecoder $loginDecoder = new LoginResponseDecoder(),
+        private readonly ServerUrlPolicy $serverUrls = new ServerUrlPolicy(),
         ?LoggerInterface $logger = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
@@ -122,15 +124,15 @@ final class TokenManager
                 throw new TransportException("MajorLogin returned HTTP {$login->status}.");
             }
 
-            $decoded = $this->loginDecoder->decode($login->body);
+            $decoded = $this->loginDecoder->decode($login->body, $this->profile->obVersion());
             $reportedTtl = $decoded->ttl > 0
                 ? min($decoded->ttl, $this->profile->fallbackTokenTtl())
                 : $this->profile->fallbackTokenTtl();
-            $effectiveTtl = max(300, $reportedTtl);
+            $effectiveTtl = $reportedTtl;
             $info = new TokenInfo(
                 'Bearer '.$decoded->token,
                 $decoded->lockRegion,
-                $decoded->serverUrl,
+                $this->serverUrls->normalize($decoded->serverUrl),
                 time() + $effectiveTtl,
             );
             $this->cache->put($key, $info, $effectiveTtl);

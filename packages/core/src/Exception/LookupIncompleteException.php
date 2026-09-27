@@ -1,4 +1,4 @@
 <?php
 declare(strict_types=1);
 namespace Refatbd\FreeFire\Exception;
-class ProtocolException extends FreeFireException {}
+final class LookupIncompleteException extends TransportException {}

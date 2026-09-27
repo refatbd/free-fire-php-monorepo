@@ -2,6 +2,8 @@
 
 This guide covers the controlled research needed when an official Free Fire OB release changes login or player lookup. Work only with an official client and test account you are authorized to inspect. Keep raw binaries, captures and credentials outside Git; commit only verified constants, schemas and sanitized fixtures.
 
+The OB54-to-OB55 example below is historical. OB55 is now the default; for the next release, copy the OB55 profile into a new versioned directory and repeat the same checks. See [OB55 migration](OB55_MIGRATION.md).
+
 ## 1. Freeze the source identity
 
 Before extracting anything, record:
@@ -23,7 +25,7 @@ protocol/ob54/                                -> protocol/ob55/
 tests/Fixtures/Protocol/OB54/                 -> tests/Fixtures/Protocol/OB55/
 ```
 
-Register the new class in `BuiltInProtocolProfiles::classes()` and keep it opt-in with `FREEFIRE_PROTOCOL=OB55` until live validation passes.
+Register each new class in `BuiltInProtocolProfiles::classes()` and keep a future profile opt-in until live validation passes.
 
 ## 3. Locate maintained constants
 

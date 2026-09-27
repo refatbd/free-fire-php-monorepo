@@ -6,6 +6,7 @@ namespace Refatbd\FreeFire;
 use Refatbd\FreeFire\Cache\CacheStoreInterface;
 use Refatbd\FreeFire\Crypto\AesCbcCipher;
 use Refatbd\FreeFire\Exception\InvalidInputException;
+use Refatbd\FreeFire\Exception\LookupIncompleteException;
 use Refatbd\FreeFire\Exception\TransportException;
 use Refatbd\FreeFire\Http\HttpRequest;
 use Refatbd\FreeFire\Http\HttpTransportInterface;
@@ -38,16 +39,13 @@ final class FreeFireClient
         $uid = InputValidator::uid($uid);
 
         if ($region !== null && trim($region) !== '' && strtoupper(trim($region)) !== 'AUTO') {
-            try {
-                return $this->fetchPlayerSingleRegion($uid, $region);
-            } catch (\Throwable $e) {
-                // If specific region gateway login fails, fallback to multi-gateway scanning
-            }
+            return $this->fetchPlayerSingleRegion($uid, $region);
         }
 
         $candidateRegions = ['BD', 'SG', 'IND', 'BR', 'VN', 'ID', 'TH', 'TW'];
 
         // 1. Check cache
+        $gatewayFailed = false;
         foreach ($candidateRegions as $r) {
             $cacheKey = "freefire:{$this->profile->obVersion()}:player:{$r}:{$uid}";
             $cached = $this->cache->get($cacheKey);
@@ -63,11 +61,16 @@ final class FreeFireClient
                 if (!empty($data['basicInfo']['nickname'])) {
                     return $data;
                 }
+            } catch (InvalidInputException $e) {
+                // This gateway answered but did not contain the requested player.
             } catch (\Throwable $e) {
-                // Continue scanning candidate region
+                $gatewayFailed = true;
             }
         }
 
+        if ($gatewayFailed) {
+            throw new LookupIncompleteException('Some login gateways are unavailable; player lookup could not be completed.');
+        }
         throw new InvalidInputException("Player account not found for UID '{$uid}'.");
     }
 

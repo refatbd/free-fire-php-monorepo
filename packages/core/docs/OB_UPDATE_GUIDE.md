@@ -2,6 +2,8 @@
 
 This is the authoritative runbook for adding a new Free Fire OB release. Do not modify the existing OB profile in place. Add a new versioned profile, protocol directory, fixtures, tests, and changelog entry so rollback remains possible.
 
+OB55 is now the default. Read [the OB55 migration record](OB55_MIGRATION.md) for the verified headers, 64-byte login framing, account update and remaining unknowns. Use this guide for the next release.
+
 Use `OB_PROTOCOL_CAPTURE.md` for the controlled extraction workflow, `ACCOUNT_CREDENTIAL_CAPTURE.md` for account rotation, `TOKEN_GENERATION_FLOW.md` for the automatic authentication sequence, and `LIVE_PROTOCOL_VERIFICATION.md` for the release gate. This checklist coordinates those detailed runbooks.
 
 ## Fast update map

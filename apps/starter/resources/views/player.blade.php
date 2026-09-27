@@ -360,7 +360,7 @@ $formatEnum = function ($val) {
   <div class="info-card">
     <h3>Account Activity</h3>
     <ul class="data-list">
-      <li><span class="lbl">Release Version:</span> <strong>{{ $basic['releaseVersion'] ?? 'OB54' }}</strong></li>
+      <li><span class="lbl">Release Version:</span> <strong>{{ $basic['releaseVersion'] ?? 'Unknown' }}</strong></li>
       <li><span class="lbl">BR Rank Points:</span> <strong>{{ number_format((int) ($basic['rankingPoints'] ?? 0)) }}</strong></li>
       <li><span class="lbl">BR Max Rank:</span> <strong>{{ $basic['maxRank'] ?? 'N/A' }}</strong></li>
       <li><span class="lbl">CS Rank Points:</span> <strong>{{ number_format((int) ($basic['csRankingPoints'] ?? 0)) }}</strong></li>

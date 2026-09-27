@@ -20,7 +20,7 @@ credential provider
 
 ### 1. Credential resolution
 
-`EnvironmentCredentialProvider` checks a complete exact-region pair, mapped credential-group pair, then `DEFAULT`. `ChainCredentialProvider` falls back to `BundledCredentialProvider`, preserving install-and-run behavior for the private package. See `ACCOUNT_CREDENTIAL_CAPTURE.md` for the group matrix and rotation procedure.
+`EnvironmentCredentialProvider` checks an exact-region pair, mapped credential-group pair, then `DEFAULT`. A partial pair is a configuration error. `ChainCredentialProvider` falls back to `BundledCredentialProvider` when no override is present. See `ACCOUNT_CREDENTIAL_CAPTURE.md` for the group matrix and rotation procedure.
 
 ### 2. Guest token
 
@@ -55,7 +55,7 @@ The UID and call-sign source are encoded in the player request Protobuf, encrypt
 freefire:{OB}:player:{region}:{uid}
 ```
 
-Automatic detection scans configured regional gateways until a valid account is found; an unavailable credential group or gateway must fail safely and allow later candidates to run.
+Automatic detection scans configured regional gateways until a valid account is found. If no player is found and any gateway failed, it reports `LOOKUP_INCOMPLETE`; it does not claim the player is absent. An explicit region preserves that gateway's result.
 
 ## Manually maintained versus generated
 

@@ -14,7 +14,7 @@ composer require refatbd/free-fire-php
 use Refatbd\FreeFire\FreeFireFactory;
 use Refatbd\FreeFire\Protocol\BuiltInProtocolProfiles;
 
-$profile = BuiltInProtocolProfiles::get(getenv('FREEFIRE_PROTOCOL') ?: 'OB54');
+$profile = BuiltInProtocolProfiles::get(getenv('FREEFIRE_PROTOCOL') ?: 'OB55');
 $client = FreeFireFactory::make(
     __DIR__.'/storage/freefire-cache',
     profile: $profile,

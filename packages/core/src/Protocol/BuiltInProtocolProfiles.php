@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Refatbd\FreeFire\Protocol;
 
 use Refatbd\FreeFire\Protocol\Profiles\Ob54ProtocolProfile;
+use Refatbd\FreeFire\Protocol\Profiles\Ob55ProtocolProfile;
 
 final class BuiltInProtocolProfiles
 {
@@ -12,6 +13,7 @@ final class BuiltInProtocolProfiles
     {
         return [
             'OB54' => Ob54ProtocolProfile::class,
+            'OB55' => Ob55ProtocolProfile::class,
         ];
     }
 

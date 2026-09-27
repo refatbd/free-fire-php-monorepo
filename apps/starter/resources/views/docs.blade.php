@@ -20,7 +20,7 @@ $player = FreeFire::player(
     '4422076728',
     'BD',
 );</code></pre><p>The returned array contains normalized basic, clan, captain, social and media information.</p></article>
-<article class="card"><h2>Important environment options</h2><pre><code>FREEFIRE_PROTOCOL=OB54
+<article class="card"><h2>Important environment options</h2><pre><code>FREEFIRE_PROTOCOL=OB55
 FREEFIRE_DEFAULT_REGION=BD
 FREEFIRE_ROUTES_ENABLED=true
 FREEFIRE_RATE_LIMIT_PER_MINUTE=30

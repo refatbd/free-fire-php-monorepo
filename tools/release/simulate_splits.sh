@@ -22,8 +22,8 @@ php tools/release/prepare_starter_distribution.php apps/starter
 if command -v protoc >/dev/null 2>&1; then
     PROTOC_BINARY=$(command -v protoc) php packages/core/tools/protobuf/generate.php
 else
-    mkdir -p packages/core/protocol/generated/php/ReleaseSimulation
-    cat > packages/core/protocol/generated/php/ReleaseSimulation/GeneratedMarker.php <<'PHP'
+    mkdir -p packages/core/protocol/generated/php/Refatbd/FreeFire/Protocol/Generated/Ob55/AccountPersonalShow
+    cat > packages/core/protocol/generated/php/Refatbd/FreeFire/Protocol/Generated/Ob55/AccountPersonalShow/AccountPersonalShowInfo.php <<'PHP'
 <?php
 // Temporary release-simulation marker. Never copied back to the monorepo.
 PHP

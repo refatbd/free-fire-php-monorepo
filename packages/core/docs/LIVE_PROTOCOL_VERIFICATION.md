@@ -27,6 +27,8 @@ Do not proceed when request-byte, crypto, decoder, security or documentation tes
 
 ## Test matrix
 
+For a quick manual check of the bundled account groups, run `php tools/diagnose-live.php --self-lookup` from the monorepo root. It performs real network calls and prints metadata only. It does not replace the invalid UID, media and route checks below.
+
 Test at least one representative region for every distinct account group, then every production region affected by the change:
 
 | Group | Minimum representative | Additional mapped regions to check when affected |

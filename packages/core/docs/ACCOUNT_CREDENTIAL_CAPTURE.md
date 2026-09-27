@@ -44,7 +44,7 @@ Resolution inside the environment provider is:
 exact region pair -> mapped group pair -> DEFAULT pair
 ```
 
-The provider chain then falls back to the bundled provider. A candidate is used only when both its UID and password are non-empty; values from different scopes are never mixed.
+The provider chain then falls back to the bundled provider when no environment pair is present. A partially configured pair is an error, so it cannot silently use a different account. Values from different scopes are never mixed.
 
 ## Configure an override
 

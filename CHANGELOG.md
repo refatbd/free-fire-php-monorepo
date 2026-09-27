@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### OB55 recovery
+
+- Added a versioned OB55 profile, fresh `X-GA-SV` headers, exact 64-byte MajorLogin framing and separate OB55 Protobuf sources; retained OB54 for rollback.
+- Updated the seven bundled service account groups with verified pairs, including owner-approved public BR/VN replacements; incomplete environment overrides now fail explicitly.
+- Require token, region and an allowlisted HTTPS player host before caching; leave OB55 field-13 tokenless responses unclassified.
+- Preserve explicit-region failures and report incomplete automatic lookups instead of false player-not-found results. Added distinct Laravel error codes.
+- Updated core, Laravel and starter defaults to OB55; added metadata-only manual live diagnostics and an English incident guide.
+- Verified all seven groups by live login and self player lookup, plus offline PHP tests and generated Protobuf parity.
+
 ### Architecture and distribution
 
 - Created one canonical monorepo for the framework-independent core, Laravel bridge and ready-made starter application.
@@ -16,7 +25,7 @@
 - Added bundled credentials with environment override, AES-128-CBC, guest/MajorLogin token flow, cross-process refresh locking and normalized player lookup.
 - Added bounded transport, redirect blocking, strict upstream URL validation, uint64-safe wire handling, signed-int64 UID validation, safer cache deserialization and atomic cache replacement.
 - Added official CDN allowlisting, bounded ASTC downloads, ASTC payload validation, shell-free `astcenc` decoding, GD/WebP rendering with per-character Unicode font fallback, deterministic media versioning and safe fallback media.
-- Centralized region-to-credential-group mapping and made environment resolution require a complete UID/password pair from one scope before falling back to group, default or bundled credentials.
+- Centralized region-to-credential-group mapping and complete UID/password resolution; partial pairs are rejected after the OB55 recovery above.
 
 ### Laravel and starter
 

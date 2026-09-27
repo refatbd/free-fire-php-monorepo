@@ -11,7 +11,7 @@ final class GoogleProtobufPlayerResponseDecoder implements PlayerResponseDecoder
 {
     /** @param class-string $messageClass */
     public function __construct(
-        private readonly string $messageClass = 'Refatbd\\FreeFire\\Protocol\\Generated\\Ob54\\AccountPersonalShow\\AccountPersonalShowInfo',
+        private readonly string $messageClass = 'Refatbd\\FreeFire\\Protocol\\Generated\\Ob55\\AccountPersonalShow\\AccountPersonalShowInfo',
         private readonly PlayerDataNormalizer $normalizer = new PlayerDataNormalizer(),
     ) {}
 
