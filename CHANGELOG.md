@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.1.0 (planned; not yet tagged)
+## v1.1.0 - 2026-09-27
 
 ### OB55 recovery
 

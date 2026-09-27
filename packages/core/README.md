@@ -6,7 +6,7 @@ Framework-independent PHP engine for Free Fire player information, region creden
 
 ## Version
 
-The latest tag before the OB55 recovery is [`v1.0.1`](https://github.com/refatbd/free-fire-php/tree/v1.0.1). The OB55 fixes on `main` target **`v1.1.0`**, which must be tagged before versioned Composer installs can use them. The package version (`vX.Y.Z`) is separate from the Free Fire protocol version (`OB55`). Release tags originate in the [canonical monorepo](https://github.com/refatbd/free-fire-php-monorepo); see its [release process](https://github.com/refatbd/free-fire-php-monorepo/blob/main/docs/RELEASE_PROCESS.md).
+**Latest release: [`v1.1.0`](https://github.com/refatbd/free-fire-php/tree/v1.1.0) (OB55 recovery).** The previous [`v1.0.1`](https://github.com/refatbd/free-fire-php/tree/v1.0.1) release does not include the OB55 fixes. The package version (`vX.Y.Z`) is separate from the Free Fire protocol version (`OB55`). Release tags originate in the [canonical monorepo](https://github.com/refatbd/free-fire-php-monorepo); see its [release process](https://github.com/refatbd/free-fire-php-monorepo/blob/main/docs/RELEASE_PROCESS.md).
 
 ```bash
 composer require refatbd/free-fire-php

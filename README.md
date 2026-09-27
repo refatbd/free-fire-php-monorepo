@@ -16,18 +16,9 @@ All development happens in this monorepo. Split repositories are generated autom
 
 ## Version and release status
 
-The latest published tag before the OB55 recovery is [`v1.0.1`](https://github.com/refatbd/free-fire-php-monorepo/tree/v1.0.1), in this repository and all three split repositories. The OB55 fixes are on `main` after that tag. **Planned coordinated release: `v1.1.0` (OB55).** A `v1.0.1` installation does not contain the OB55 recovery; use `v1.1.0` after its tag is published.
+**Latest coordinated release: [`v1.1.0`](https://github.com/refatbd/free-fire-php-monorepo/tree/v1.1.0) (OB55 recovery).** The previous [`v1.0.1`](https://github.com/refatbd/free-fire-php-monorepo/tree/v1.0.1) release does not include the OB55 fixes. Both tags apply to this monorepo and all three split repositories.
 
 The package release number (`vX.Y.Z`) and the game protocol number (`OB55`) are different. A coordinated `vX.Y.Z` tag in this monorepo publishes the same version to the core, Laravel and starter repositories. A `core-vX.Y.Z`, `laravel-vX.Y.Z` or `starter-vX.Y.Z` tag publishes only the named distribution. See the [release process](docs/RELEASE_PROCESS.md) and [changelog](CHANGELOG.md). Create release tags only after the intended README and code changes are committed on `main`.
-
-After the release checks pass and the intended commit is on canonical `main`, publish the planned coordinated release with:
-
-```bash
-git switch main
-git pull --ff-only origin main
-git tag v1.1.0
-git push origin v1.1.0
-```
 
 **Current protocol: OB55.** The PHP core, Laravel package and starter default to OB55. The seven bundled account groups passed live login and self player lookup on 2026-09-27. See the [OB55 migration record](packages/core/docs/OB55_MIGRATION.md) for evidence, diagnostics and limitations.
 
