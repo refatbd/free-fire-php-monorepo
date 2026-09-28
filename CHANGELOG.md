@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.1.1 - 2026-09-28
+
+### Binary-safe media caching and storage resilience
+
+- Implemented Base64 `__serialize()` and `__unserialize()` on `RenderedMedia` to ensure raw image payloads serialize into safe UTF-8 strings for text-based cache drivers (e.g. MySQL `MEDIUMTEXT`).
+- Base64 encoded official cached assets in `OfficialAssetDownloader` to avoid database character encoding violations.
+- Added defensive exception containment on cache writes in `MediaService`, `OfficialAssetDownloader`, and `LaravelCacheStore` so cache persistence failures never block returning rendered avatars or banners.
+- Automatically fallback to the `file` cache store in `FreeFireServiceProvider` when the application default cache is `database` to protect relational databases from image payload bloat.
+
 ## v1.1.0 - 2026-09-27
 
 ### OB55 recovery
