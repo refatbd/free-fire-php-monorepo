@@ -6,7 +6,7 @@ Ready-made Laravel application consuming `refatbd/laravel-free-fire` without cop
 
 ## Version
 
-**Latest release: [`v1.1.0`](https://github.com/refatbd/free-fire-info-starter/tree/v1.1.0) (OB55 recovery).** The previous [`v1.0.1`](https://github.com/refatbd/free-fire-info-starter/tree/v1.0.1) release does not include the OB55 defaults. The application version (`vX.Y.Z`) is separate from the Free Fire protocol version (`OB55`). Release tags originate in the [canonical monorepo](https://github.com/refatbd/free-fire-php-monorepo); see its [release process](https://github.com/refatbd/free-fire-php-monorepo/blob/main/docs/RELEASE_PROCESS.md).
+**Latest release: [`v1.1.1`](https://github.com/refatbd/free-fire-info-starter/tree/v1.1.1) (binary-safe cache & OB55).** The previous [`v1.1.0`](https://github.com/refatbd/free-fire-info-starter/tree/v1.1.0) release does not include the MySQL binary caching fix. The application version (`vX.Y.Z`) is separate from the Free Fire protocol version (`OB55`). Release tags originate in the [canonical monorepo](https://github.com/refatbd/free-fire-php-monorepo); see its [release process](https://github.com/refatbd/free-fire-php-monorepo/blob/main/docs/RELEASE_PROCESS.md).
 
 ```bash
 composer create-project refatbd/free-fire-info-starter free-fire-info
