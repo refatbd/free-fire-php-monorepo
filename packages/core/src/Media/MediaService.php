@@ -58,7 +58,11 @@ final class MediaService
         if (!$result instanceof RenderedMedia) {
             throw new \UnexpectedValueException('Media renderer returned an invalid value.');
         }
-        $this->cache->put($key, $result, max(1, $this->ttl));
+        try {
+            $this->cache->put($key, $result, max(1, $this->ttl));
+        } catch (\Throwable) {
+            // Defensive: Cache persistence failure must not prevent returning the rendered image.
+        }
         return $result;
     }
 }

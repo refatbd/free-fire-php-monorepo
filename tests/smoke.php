@@ -116,6 +116,12 @@ $assert($media->avatar($fixture,256)->data==='avatar-256'&&$media->avatar($fixtu
 $assert($media->avatar($fixture,9999)->data==='avatar-1024'&&$media->avatar($fixture,1024)->data==='avatar-1024'&&$renderer->calls===2,'normalized avatar cache dimensions');
 $firstBanner=$media->banner($fixture,1000,250);$fixture['basicInfo']['level']=68;$secondBanner=$media->banner($fixture,1000,250);
 $assert($firstBanner->data==='banner-1000x250'&&$secondBanner->data==='banner-1000x250'&&$renderer->calls===4,'banner cache includes rendered player fields');
+$binaryData="\xFF\xD8\xFF\xE0\x00\x10\x8A\x9D\x01*\x00\xFF";
+$renderedSample=new RenderedMedia($binaryData,'image/jpeg','official',true,false);
+$serializedSample=serialize($renderedSample);
+$hasBinaryHighBytes=(bool)preg_match('/[\x80-\xFF]/',$serializedSample);
+$restoredSample=unserialize($serializedSample);
+$assert(!$hasBinaryHighBytes&&$restoredSample->data===$binaryData&&$restoredSample->contentType==='image/jpeg','binary safe rendered media serialization');
 array_map('unlink',glob($mediaDir.'/*')?:[]);@rmdir($mediaDir);
 
 echo 'Passed '.count($tests)." smoke tests:\n - ".implode("\n - ",$tests)."\n";

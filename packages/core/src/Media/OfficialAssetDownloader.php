@@ -26,10 +26,11 @@ final class OfficialAssetDownloader
         $cacheKey = 'freefire:official-asset:'.$namespace.':'.$baseHash.':'.$safeId;
         $cached = $this->cache?->get($cacheKey);
         if (is_array($cached) && is_string($cached['data'] ?? null) && is_string($cached['url'] ?? null)) {
+            $assetData = !empty($cached['_b64']) ? (base64_decode($cached['data'], true) ?: $cached['data']) : $cached['data'];
             try {
-                $this->parser->validateAsset($cached['data']);
+                $this->parser->validateAsset($assetData);
                 if ($this->policy->isAllowedUrl($cached['url'])) {
-                    return ['data' => $cached['data'], 'url' => $cached['url']];
+                    return ['data' => $assetData, 'url' => $cached['url']];
                 }
             } catch (\Throwable) {
                 $this->cache?->forget($cacheKey);
@@ -44,9 +45,13 @@ final class OfficialAssetDownloader
             try {
                 $data = $this->downloadOne($url);
                 $this->parser->validateAsset($data);
-                $result = ['data' => $data, 'url' => $url];
-                $this->cache?->put($cacheKey, $result, max(60, $this->cacheTtl));
-                return $result;
+                $result = ['data' => base64_encode($data), 'url' => $url, '_b64' => true];
+                try {
+                    $this->cache?->put($cacheKey, $result, max(60, $this->cacheTtl));
+                } catch (\Throwable) {
+                    // Non-fatal: caching failure must not block returning downloaded asset.
+                }
+                return ['data' => $data, 'url' => $url];
             } catch (\Throwable $e) {
                 $lastError = $e;
             }
