@@ -16,7 +16,7 @@ All development happens in this monorepo. Split repositories are generated autom
 
 ## Version and release status
 
-**Latest coordinated release: [`v1.1.1`](https://github.com/refatbd/free-fire-php-monorepo/tree/v1.1.1) (binary-safe cache & OB55).** The previous [`v1.1.0`](https://github.com/refatbd/free-fire-php-monorepo/tree/v1.1.0) release does not include the MySQL binary caching fix. Both tags apply to this monorepo and all three split repositories.
+**Latest coordinated release: [`v1.1.2`](https://github.com/refatbd/free-fire-php-monorepo/tree/v1.1.2) (rate-limit resilience, safe media fallback & OB55).** The previous [`v1.1.1`](https://github.com/refatbd/free-fire-php-monorepo/tree/v1.1.1) release introduced binary-safe media serialization. Both tags apply to this monorepo and all three split repositories.
 
 The package release number (`vX.Y.Z`) and the game protocol number (`OB55`) are different. A coordinated `vX.Y.Z` tag in this monorepo publishes the same version to the core, Laravel and starter repositories. A `core-vX.Y.Z`, `laravel-vX.Y.Z` or `starter-vX.Y.Z` tag publishes only the named distribution. See the [release process](docs/RELEASE_PROCESS.md) and [changelog](CHANGELOG.md). Create release tags only after the intended README and code changes are committed on `main`.
 

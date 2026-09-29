@@ -7,6 +7,7 @@ use Refatbd\FreeFire\Cache\CacheStoreInterface;
 use Refatbd\FreeFire\Crypto\AesCbcCipher;
 use Refatbd\FreeFire\Exception\InvalidInputException;
 use Refatbd\FreeFire\Exception\LookupIncompleteException;
+use Refatbd\FreeFire\Exception\RateLimitedException;
 use Refatbd\FreeFire\Exception\TransportException;
 use Refatbd\FreeFire\Http\HttpRequest;
 use Refatbd\FreeFire\Http\HttpTransportInterface;
@@ -104,6 +105,9 @@ final class FreeFireClient
             10,
             4_194_304,
         ));
+        if ($response->status === 429) {
+            throw new RateLimitedException("Player endpoint rate limit reached (HTTP 429). Please wait before retrying.");
+        }
         if ($response->status < 200 || $response->status >= 300) {
             throw new TransportException("Player endpoint returned HTTP {$response->status}.");
         }

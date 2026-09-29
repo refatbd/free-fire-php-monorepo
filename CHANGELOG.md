@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.1.2 - 2026-09-29
+
+### Upstream Rate Limit Resilience & CLI Diagnostics
+
+- **Core (`refatbd/free-fire-php`):**
+  - Added dedicated `RateLimitedException` (extends `TransportException`) thrown when Garena returns HTTP 429, allowing consuming applications to detect upstream rate limiting explicitly.
+- **Laravel Bridge (`refatbd/laravel-free-fire`):**
+  - Updated `MediaController` (`avatar` and `banner`) to gracefully fall back to placeholder player profiles on upstream `FreeFireException` (rate limiting, network timeouts, or unreachable gateways), ensuring `<img>` tags never fail with 502 JSON errors.
+  - Set default `FREEFIRE_CACHE_STORE=file` in `config/freefire.php` to safeguard MySQL database cache tables.
+  - Added new Artisan command `php artisan freefire:player {uid} {--region=} {--raw}` for fast CLI player diagnostics and network verification directly from terminal.
+  - Added test coverage for CLI player lookup command and media fallback resilience.
+
 ## v1.1.1 - 2026-09-28
 
 ### Binary-safe media caching and storage resilience
@@ -38,14 +50,3 @@
 - Added bounded transport, redirect blocking, strict upstream URL validation, uint64-safe wire handling, signed-int64 UID validation, safer cache deserialization and atomic cache replacement.
 - Added official CDN allowlisting, bounded ASTC downloads, ASTC payload validation, shell-free `astcenc` decoding, GD/WebP rendering with per-character Unicode font fallback, deterministic media versioning and safe fallback media.
 - Centralized region-to-credential-group mapping and made environment resolution require a complete UID/password pair from one scope before falling back to group, default or bundled credentials.
-
-### Laravel and starter
-
-- Added service provider, facade, configuration, cache adapter, throttled API and compatibility routes, health diagnostics and Artisan commands.
-- Added Laravel Testbench coverage.
-- Added a responsive player checker, complete dynamic region selector, cache-busting media URLs, result page and built-in developer/API guide.
-
-### Documentation
-
-- Added detailed OB update, protocol recovery, credential, media, testing, security, source-provenance, monorepo, split and release runbooks; credential-bearing legacy copies are excluded from the canonical tree.
-- Added controlled account-capture/rotation, OB protocol capture, automatic token-generation and sanitized live-verification runbooks, plus automated documentation consistency checks.

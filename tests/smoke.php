@@ -122,6 +122,8 @@ $serializedSample=serialize($renderedSample);
 $hasBinaryHighBytes=(bool)preg_match('/[\x80-\xFF]/',$serializedSample);
 $restoredSample=unserialize($serializedSample);
 $assert(!$hasBinaryHighBytes&&$restoredSample->data===$binaryData&&$restoredSample->contentType==='image/jpeg','binary safe rendered media serialization');
+$rateLimited=new \Refatbd\FreeFire\Exception\RateLimitedException('Rate limited (HTTP 429)');
+$assert($rateLimited instanceof \Refatbd\FreeFire\Exception\TransportException&&$rateLimited instanceof \Refatbd\FreeFire\Exception\FreeFireException,'rate limited exception inheritance');
 array_map('unlink',glob($mediaDir.'/*')?:[]);@rmdir($mediaDir);
 
 echo 'Passed '.count($tests)." smoke tests:\n - ".implode("\n - ",$tests)."\n";
